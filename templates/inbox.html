@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Simulated Email Inbox | BackTrack{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-0 rounded-4">
+  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+    <h5 class="mb-0 fw-bold">Simulated Email Inbox (NotificationService)</h5>
+    <span class="badge bg-warning text-dark">Local Demo Mode</span>
+  </div>
+  <div class="card-body">
+    <p class="text-muted small">
+      Automated match alerts (&ge;60%) and status updates appear here in real time. Per SDS privacy rules, no identifying item details are included in emails.
+    </p>
+    {% if notifications %}
+      <div class="list-group">
+        {% for note in notifications %}
+          <div class="list-group-item list-group-item-action">
+            <div class="d-flex justify-content-between">
+              <h6 class="mb-1 fw-bold">{{ note.subject }}</h6>
+              <small class="text-muted">{{ note.createdAt.strftime('%b %d, %Y %I:%M %p') }}</small>
+            </div>
+            <p class="mb-1">{{ note.message }}</p>
+            <small class="text-secondary">To: {{ note.recipientEmail }}</small>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-light border text-center">No notifications dispatched yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
