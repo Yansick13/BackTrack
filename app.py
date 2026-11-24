@@ -81,6 +81,49 @@ def login():
     return render_template("login.html")
 
 
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Handles new Student account registration."""
+    if request.method == "POST":
+        # Grab the text typed into the HTML form
+        user_id = request.form.get("userId", "").strip()
+        full_name = request.form.get("fullName", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        # Basic validation: make sure nothing was left blank
+        if not user_id or not full_name or not email or not password:
+            flash("All fields are required.", "danger")
+            return redirect(url_for("register"))
+
+        # Duplicate check (protects the unique=True columns in models.py)
+        existing_user = User.query.filter(
+            (User.email == email) | (User.userId == user_id)
+        ).first()
+        if existing_user:
+            flash("An account with that Email or UWI ID already exists.", "danger")
+            return redirect(url_for("register"))
+
+        # Create the User object and hash the password
+        new_user = User(
+            userId=user_id,
+            fullName=full_name,
+            email=email,
+            role="STUDENT"
+        )
+        new_user.set_password(password)
+
+        # Save to SQLite
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("Account created! You can now log in.", "success")
+        return redirect(url_for("login"))
+
+    # If the user just clicked the link (GET request), show the blank form
+    return render_template("register.html")
+
+
 @app.route("/logout")
 def logout():
     """Clears the user session and returns to guest view."""
