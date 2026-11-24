@@ -38,8 +38,8 @@ def matchKeywords(keywords): # 'keywords' is a tuple containing two lists
 def extractKeywords(lostReport, foundItem):
     """Extracts the words from the descriptions and returns them as lists"""
     punctuation = ".,?!'\";:()"
-    lostWords = {words.strip(punctuation) for words in lostReport.privateDetails.lower().split()}
-    foundWords = {words.strip(punctuation) for words in foundItem.secretGroundTruth.lower().split()}
+    lostWords = {words.strip(punctuation) for words in (lostReport.privateDetails or "").lower().split()}
+    foundWords = {words.strip(punctuation) for words in (foundItem.secretGroundTruth or "").lower().split()}
     return list(lostWords), list(foundWords)
 
 def calculateScore(lostReport, foundItem) -> float:
@@ -86,5 +86,6 @@ def runMatchScan(report) -> list:
     for match in sortedMatches:
         lostReport = match[0]
         foundReport = match[1]
-        sendMatchAlert(lostReport.reporter.email, message(lostReport, foundReport))
+        if lostReport.reporter:
+           sendMatchAlert(lostReport.reporter.email, message(lostReport, foundReport))
     return sortedMatches
