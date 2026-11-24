@@ -2,7 +2,6 @@
 BackTrack — NotificationService (services/notification_service.py)
 Owner: Role 4 (Simulated Email Alerts — Feature #3)
 
-TODO for Role 4:
 1. Implement sendMatchAlert(email, message) -> saves to Notification table.
 2. Implement sendStatusAlert(email, message) -> saves to Notification table.
 3. PRIVACY RULE: Never include serial numbers, secretGroundTruth, or raw photos in alerts!
