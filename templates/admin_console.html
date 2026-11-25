@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Police Console | BackTrack{% endblock %}
+
+{% block content %}
+{% macro claim_badge(status) -%}
+  {%- set colors = {'PENDING': 'secondary', 'APPROVED': 'success', 'FRAUD': 'danger'} -%}
+  <span class="badge bg-{{ colors.get(status, 'secondary') }}">{{ status }}</span>
+{%- endmacro %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="mb-1">Police Console</h2>
+    <p class="text-muted mb-0">Compare each claimant's proof with the officer's record, then approve the handover or flag the claim as fraud.</p>
+  </div>
+  <a href="{{ url_for('status.track_status') }}" class="btn btn-outline-dark btn-sm">All items &amp; audit log</a>
+</div>
+
+<h5 class="mb-3">Pending claims <span class="badge bg-secondary">{{ cases|length }}</span></h5>
+
+{% for case in cases %}
+  {% set claim = case.claim %}
+  {% set item = case.item %}
+  {% set claimant = case.claimant %}
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2 py-3">
+      <div>
+        <span class="fw-bold">{{ claim.claimId }}</span>
+        <span class="text-muted">on</span>
+        <span class="fw-bold">{{ item.itemId }}</span>
+        <span class="text-muted">&middot; {{ item.genericTitle }}</span>
+      </div>
+      <span class="badge bg-info text-dark">Item status: {{ item.status }}</span>
+    </div>
+
+    <div class="card-body">
+      <div class="row small text-muted mb-3">
+        <div class="col-md-4"><strong>Claimant:</strong> {{ claimant.fullName }} ({{ claimant.userId }})</div>
+        <div class="col-md-4"><strong>Email:</strong> {{ claimant.email }}</div>
+        <div class="col-md-4"><strong>Submitted:</strong> {{ claim.createdAt|jm_time }}</div>
+        <div class="col-12 mt-1"><strong>Handover window:</strong> {{ claim.appointmentWindow }}</div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="border rounded-3 p-3 h-100">
+            <h6 class="fw-bold">Claimant's proof</h6>
+            <p class="mb-0" style="white-space: pre-wrap;">{{ claim.ownershipProof }}</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="border rounded-3 p-3 h-100 bg-light">
+            <h6 class="fw-bold">Officer's record</h6>
+            <p style="white-space: pre-wrap;">{{ item.secretGroundTruth }}</p>
+            <p class="small text-muted mb-2"><strong>Held at:</strong> {{ item.custodyLocation }}</p>
+            {% if case.photo_url %}
+              <img src="{{ case.photo_url }}" class="img-fluid rounded border" style="max-height: 220px;"
+                   alt="Officer-uploaded photo of {{ item.itemId }}">
+            {% else %}
+              <p class="small text-muted mb-0">No photo uploaded for this item.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer bg-white py-3">
+      {% if item.status == 'RETURNED' %}
+        <div class="alert alert-warning small mb-3">
+          This item has already been returned to another claimant, so this claim can't be approved.
+          You can still flag it as fraud to close it.
+        </div>
+      {% endif %}
+
+      <div class="d-flex flex-wrap gap-2">
+        {% if item.status != 'RETURNED' %}
+        <form method="post" action="{{ url_for('verification.approve_handover', claim_id=claim.id) }}"
+              onsubmit="return confirm('Approve handover of {{ item.itemId }} to {{ claimant.fullName|e }}? Only do this after checking their ID in person.');">
+          <button type="submit" class="btn btn-success">Approve handover</button>
+        </form>
+        {% endif %}
+        <button type="button" class="btn btn-outline-danger" data-bs-toggle="collapse"
+                data-bs-target="#flag-{{ claim.id }}" aria-expanded="false" aria-controls="flag-{{ claim.id }}">
+          Flag as fraud
+        </button>
+      </div>
+
+      <div class="collapse mt-3" id="flag-{{ claim.id }}">
+        <form method="post" action="{{ url_for('verification.flag_fraud', claim_id=claim.id) }}">
+          <label for="note-{{ claim.id }}" class="form-label fw-semibold">Reason for flagging (required)</label>
+          <textarea id="note-{{ claim.id }}" name="fraudReasonNote" class="form-control mb-2" rows="3" required
+                    placeholder="What didn't match, or what made this claim suspicious?"></textarea>
+          <div class="form-text mb-2">The item returns to FOUND so the real owner can still claim it.</div>
+          <button type="submit" class="btn btn-danger">Confirm fraud flag</button>
+        </form>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="alert alert-light border text-center">No claims are waiting for review.</div>
+{% endfor %}
+
+<h5 class="mt-5 mb-3">Recently reviewed</h5>
+{% if reviewed %}
+<div class="table-responsive">
+  <table class="table table-sm align-middle bg-white shadow-sm">
+    <thead class="table-light">
+      <tr><th>Claim</th><th>Item</th><th>Claimant</th><th>Outcome</th><th>Fraud reason</th><th>Submitted</th></tr>
+    </thead>
+    <tbody>
+      {% for c in reviewed %}
+      <tr>
+        <td>{{ c.claimId }}</td>
+        <td><a href="{{ url_for('status.track_status', itemId=c.found_item.itemId) }}">{{ c.found_item.itemId }}</a></td>
+        <td>{{ c.claimant.fullName }}</td>
+        <td>{{ claim_badge(c.claimStatus) }}</td>
+        <td class="small">{{ c.fraudReasonNote or '' }}</td>
+        <td class="small text-muted">{{ c.createdAt|jm_time }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <p class="text-muted">Nothing reviewed yet.</p>
+{% endif %}
+{% endblock %}
