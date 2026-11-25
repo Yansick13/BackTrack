@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Claim Item | BackTrack{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <a href="{{ url_for('directory.view_directory') }}" class="small text-decoration-none">&larr; Back to Found Directory</a>
+    <h2 class="mt-2 mb-3">Claim this item</h2>
+
+    <!-- Blinded summary: only the public fields are ever passed to this page -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+      <div class="card-body">
+        <span class="badge bg-secondary mb-2">{{ item.category }}</span>
+        <h5 class="card-title mb-1">{{ item.genericTitle }}</h5>
+        <p class="mb-1 text-muted small">Reference {{ item.itemId }}</p>
+        <p class="mb-0"><strong>Found at:</strong> {{ item.foundZone }}</p>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-4">
+        <form method="post" action="{{ url_for('verification.submit_claim', item_id=item.id) }}">
+
+          <div class="mb-4">
+            <label for="ownershipProof" class="form-label fw-semibold">How can you prove it's yours?</label>
+            <textarea id="ownershipProof" name="ownershipProof" class="form-control" rows="6"
+                      maxlength="2000" required
+                      aria-describedby="proofHelp">{{ proof }}</textarea>
+            <div id="proofHelp" class="form-text">
+              Give details only the owner would know: colour, case or cover, stickers, wallpaper,
+              scratches or dents, what was attached or inside. The listing above is deliberately vague,
+              so claims that only repeat it are likely to be rejected.
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="appointmentWindow" class="form-label fw-semibold">When can you collect it?</label>
+            <select id="appointmentWindow" name="appointmentWindow" class="form-select" required>
+              <option value="" disabled {{ 'selected' if not window }}>Choose a handover window</option>
+              {% for w in windows %}
+                <option value="{{ w }}" {{ 'selected' if w == window }}>{{ w }}</option>
+              {% endfor %}
+            </select>
+            <div class="form-text">Weekdays only.</div>
+          </div>
+
+          <div class="alert alert-info small">
+            Items are handed over only at Campus Police <strong>{{ location }}</strong>, never at a
+            private meet-up. Bring your UWI ID. An officer will check your proof against the item
+            before releasing it.
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-uwi fw-bold px-4">Submit claim</button>
+            <a href="{{ url_for('directory.view_directory') }}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
