@@ -283,13 +283,10 @@ def test_claim_enquiry_validation_and_fraud_rollback_audit(client):
 
 def test_smart_matching_threshold_and_alert_privacy(client):
     """
-    Verify Role 4's MatchingService scores >= 0.60 for matching category/zone/keywords
+    Verify Role 4's matching_service scores >= 0.60 for matching category/zone/keywords
     and dispatches a privacy-safe Notification without leaking secretGroundTruth.
     """
-    matching_mod = pytest.importorskip("services.matching_service")
-    MatchingService = getattr(matching_mod, "MatchingService", None)
-    if MatchingService is None:
-        pytest.skip("MatchingService class not yet implemented in services/matching_service.py")
+    from services.matching_service import calculateScore, runMatchScan
 
     student = User.query.filter_by(role="STUDENT").first()
     admin = User.query.filter_by(role="ADMIN").first()
@@ -316,11 +313,10 @@ def test_smart_matching_threshold_and_alert_privacy(client):
     db.session.add_all([found, lost])
     db.session.commit()
 
-    matcher = MatchingService()
-    score = matcher.calculateScore(lost, found)
+    score = calculateScore(lost, found)
     assert score >= 0.60
 
-    matcher.runMatchScan(lost)
+    runMatchScan(lost)
     alerts = Notification.query.filter_by(recipientEmail=student.email).all()
     assert len(alerts) >= 1
     # Privacy check: alert must not expose secretGroundTruth verbatim
