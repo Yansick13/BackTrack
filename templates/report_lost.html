@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Report a Lost Item{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-warning-subtle">
+        <h1 class="h4 mb-0">Report a Lost Item</h1>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">
+          Public listings hide your secret details and serial number. Use this form to provide proof that can verify ownership later.
+        </p>
+
+        <form method="post">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label for="title" class="form-label">Generic item title <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="title" name="title"
+                     maxlength="120" placeholder="e.g. Smartphone Device" value="{{ form.get('title', '') }}" required>
+            </div>
+            <div class="col-md-4">
+              <label for="event_date" class="form-label">Date lost <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="event_date" name="event_date"
+                     value="{{ form.get('event_date', '') }}" required>
+            </div>
+
+            <div class="col-md-6">
+              <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+              <select class="form-select" id="category" name="category" required>
+                <option value="">Select category</option>
+                {% for category in categories %}
+                  <option value="{{ category }}" {% if form.get('category') == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="zone" class="form-label">Last seen location / zone <span class="text-danger">*</span></label>
+              <select class="form-select" id="zone" name="zone" required>
+                <option value="">Select location</option>
+                {% for zone in zones %}
+                  <option value="{{ zone }}" {% if form.get('zone') == zone %}selected{% endif %}>{{ zone }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label for="serial_number" class="form-label">Serial number <span class="text-muted">(optional)</span></label>
+              <input type="text" class="form-control" id="serial_number" name="serial_number"
+                     maxlength="150" value="{{ form.get('serial_number', '') }}">
+            </div>
+
+            <div class="col-12">
+              <label for="secret_details" class="form-label">Secret ownership details <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="secret_details" name="secret_details" rows="4"
+                        maxlength="2000" required>{{ form.get('secret_details', '') }}</textarea>
+              <div class="form-text">
+                Keep identifying marks, lock patterns, accessories, or serial details here. They are kept private.
+              </div>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-warning">Submit lost report</button>
+              <a href="/" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
