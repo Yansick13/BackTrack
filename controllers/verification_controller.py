@@ -29,7 +29,10 @@ MAX_PROOF_LENGTH = 2000
 
 JAMAICA_TZ = timezone(timedelta(hours=-5), "JM")
 
+
 class WorkflowError(ValueError):
+    pass
+
 
 def current_user():
     """Returns the logged-in User, or None for guests."""
@@ -47,6 +50,7 @@ def login_required(view):
         return view(*args, **kwargs)
     return wrapper
 
+
 def admin_required(view):
     """Only Campus Police Admins may open the wrapped page."""
     @wraps(view)
@@ -58,6 +62,7 @@ def admin_required(view):
         return view(*args, **kwargs)
     return wrapper
 
+
 def _next_id(column, prefix, start):
     """Builds the next sequential ID, e.g. CLM-3002, continuing from the highest stored."""
     highest = start - 1
@@ -68,11 +73,14 @@ def _next_id(column, prefix, start):
             continue
     return f"{prefix}-{highest + 1}"
 
+
 def next_claim_id():
     return _next_id(ClaimEnquiry.claimId, "CLM", 3001)
 
+
 def next_log_id():
     return _next_id(AuditLog.logId, "LOG", 4001)
+
 
 def record_audit(officer, target_id, status_change, note):   
     entry = AuditLog(
@@ -85,6 +93,7 @@ def record_audit(officer, target_id, status_change, note):
     db.session.add(entry)
     return entry
 
+
 def _photo_url(photo_path):    
     if not photo_path:
         return None
@@ -95,6 +104,7 @@ def _photo_url(photo_path):
         path = "uploads/" + path.split("/")[-1]
     return url_for("static", filename=path)
 
+
 @verification_bp.app_template_filter("jm_time")
 def jm_time(value):
     """ Formats to jamaican time for templates"""
@@ -103,6 +113,7 @@ def jm_time(value):
     if value.tzinfo is None:
         value = value.replace(tzinfo=timezone.utc)
     return value.astimezone(JAMAICA_TZ).strftime("%b %d, %Y %I:%M %p")
+
 
 def _claim_blocker(user, item):
     """Returns a message explaining why the user cannot claim the item, or None if they can."""
@@ -124,6 +135,7 @@ def _claim_blocker(user, item):
     if earlier:
         return "Campus Police has rejected your earlier claim on this item. Please visit Main Gate HQ."
     return None
+
 
 def submitEnquiry(user, itemId, proof, window):    
     item = db.session.get(FoundItem, itemId)
@@ -191,6 +203,7 @@ def approveHandover(claimId, officer):
     )
     return claim
 
+
 def flagFraud(claimId, officer, reason):
     """Rejects a claim as fraud. The item goes back to FOUND so the real owner can still claim it."""
     reason = (reason or "").strip()
@@ -212,6 +225,7 @@ def flagFraud(claimId, officer, reason):
     )
     db.session.commit()
     return claim
+
 
 @verification_bp.route("/claim/<int:item_id>", methods=["GET", "POST"])
 @login_required
@@ -243,10 +257,11 @@ def submit_claim(item_id):
                            windows=HANDOVER_WINDOWS, proof=proof, window=window,
                            location=HANDOVER_LOCATION)
 
+
 @verification_bp.route("/admin/console")
 @admin_required
 def admin_console():
-        pending = (ClaimEnquiry.query.filter_by(claimStatus="PENDING")
+    pending = (ClaimEnquiry.query.filter_by(claimStatus="PENDING")
                .order_by(ClaimEnquiry.createdAt).all())
     cases = [
         {"claim": c, "item": c.found_item, "claimant": c.claimant,
@@ -256,6 +271,7 @@ def admin_console():
     reviewed = (ClaimEnquiry.query.filter(ClaimEnquiry.claimStatus != "PENDING")
                 .order_by(ClaimEnquiry.createdAt.desc()).limit(15).all())
     return render_template("admin_console.html", cases=cases, reviewed=reviewed)
+
 
 @verification_bp.route("/admin/claims/<int:claim_id>/approve", methods=["POST"])
 @admin_required
@@ -268,6 +284,7 @@ def approve_handover(claim_id):
         flash(f"Handover approved for {claim.claimId}. {claim.found_item.itemId} is now RETURNED.", "success")
     return redirect(url_for("verification.admin_console"))
 
+
 @verification_bp.route("/admin/claims/<int:claim_id>/flag", methods=["POST"])
 @admin_required
 def flag_fraud(claim_id):
@@ -279,4 +296,3 @@ def flag_fraud(claim_id):
         flash(f"{claim.claimId} flagged as fraud. {claim.found_item.itemId} stays open for the real owner.",
               "warning")
     return redirect(url_for("verification.admin_console"))
-    
