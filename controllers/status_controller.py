@@ -16,6 +16,7 @@ LOST_STATUSES = ["LOST", "MATCHED", "RETURNED"]
 FOUND_STATUSES = ["FOUND", "MATCHED", "RETURNED"]
 AUDIT_LOG_LIMIT = 100
 
+
 def _find_record(itemId):
     """Looks up an active record by its code: LST-#### (lost report) or FND-#### (found item)."""
     code = (itemId or "").strip().upper()
@@ -25,12 +26,14 @@ def _find_record(itemId):
         return "found", FoundItem.query.filter_by(itemId=code, isDeleted=False).first()
     return None, None
 
+
 def _can_view(user, kind, record):
     if user.isPoliceAdmin() or record.user_id == user.id:
         return True
     if kind == "found":
         return ClaimEnquiry.query.filter_by(found_item_id=record.id, user_id=user.id).first() is not None
     return False
+
 
 def getItemStatus(itemId, user):
     kind, record = _find_record(itemId)
@@ -54,10 +57,11 @@ def getItemStatus(itemId, user):
         "createdAt": record.createdAt,
         "history": None,
     }
-    if user.isPoliceAdmin(): """The Audit Log view for Campus Police Admin"""
+    if user.isPoliceAdmin():  # The Audit Log view for Campus Police Admin
         result["history"] = (AuditLog.query.filter_by(targetRecordId=code)
                              .order_by(AuditLog.timestamp.desc(), AuditLog.id.desc()).all())
     return result
+
 
 def updateItemStatus(itemId, status, officer, note=""):
     if officer is None or not officer.isPoliceAdmin():
@@ -82,6 +86,7 @@ def updateItemStatus(itemId, status, officer, note=""):
                  (note or "").strip() or "Status updated manually by officer.")
     db.session.commit()
     return record
+
 
 @status_bp.route("/status")
 @login_required
@@ -115,6 +120,7 @@ def track_status():
             claims=ClaimEnquiry.query.filter_by(user_id=user.id).order_by(ClaimEnquiry.id.desc()).all(),
         )
     return render_template("track_status.html", **context)
+
 
 @status_bp.route("/status/update", methods=["POST"])
 @admin_required
