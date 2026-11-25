@@ -18,6 +18,7 @@ import pytest
 
 # This ensures project root is importable when running pytest from any directory
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+os.environ["DATABASE_URI"] = "sqlite:///:memory:"
 
 from app import app
 from models import (
