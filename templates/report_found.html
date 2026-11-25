@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Report a Found Item{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-success-subtle">
+        <h1 class="h4 mb-0">Report a Found Item</h1>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">
+          Record what was found without publishing identifying details. Secret details and photos stay private for Campus Police verification.
+        </p>
+
+        <form method="post" enctype="multipart/form-data">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label for="title" class="form-label">Generic item title <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="title" name="title"
+                     maxlength="120" placeholder="e.g. Laptop Backpack" value="{{ form.get('title', '') }}" required>
+            </div>
+            <div class="col-md-4">
+              <label for="event_date" class="form-label">Date found <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="event_date" name="event_date"
+                     value="{{ form.get('event_date', '') }}" required>
+            </div>
+
+            <div class="col-md-6">
+              <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+              <select class="form-select" id="category" name="category" required>
+                <option value="">Select category</option>
+                {% for category in categories %}
+                  <option value="{{ category }}" {% if form.get('category') == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="zone" class="form-label">Found location / zone <span class="text-danger">*</span></label>
+              <select class="form-select" id="zone" name="zone" required>
+                <option value="">Select location</option>
+                {% for zone in zones %}
+                  <option value="{{ zone }}" {% if form.get('zone') == zone %}selected{% endif %}>{{ zone }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label for="custody_location" class="form-label">Custody / drop-off location <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="custody_location" name="custody_location"
+                     maxlength="120" placeholder="e.g. UWI Campus Police HQ (Main Gate)"
+                     value="{{ form.get('custody_location', '') }}" required>
+            </div>
+
+            <div class="col-md-6">
+              <label for="serial_number" class="form-label">Visible serial number <span class="text-muted">(optional)</span></label>
+              <input type="text" class="form-control" id="serial_number" name="serial_number"
+                     maxlength="150" value="{{ form.get('serial_number', '') }}">
+            </div>
+            <div class="col-md-6">
+              <label for="photo" class="form-label">Photo <span class="text-muted">(optional)</span></label>
+              <input type="file" class="form-control" id="photo" name="photo"
+                     accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif">
+            </div>
+
+            <div class="col-12">
+              <label for="secret_details" class="form-label">Private finder details (ground truth) <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="secret_details" name="secret_details" rows="4"
+                        maxlength="2000" required>{{ form.get('secret_details', '') }}</textarea>
+              <div class="form-text">
+                Record condition, contents, marks, or distinguishing features for later verification.
+              </div>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-success">Submit found report</button>
+              <a href="/" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
