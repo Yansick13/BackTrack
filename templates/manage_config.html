@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Manage Zones &amp; Categories{% endblock %}
+{% block content %}
+<h2 class="mb-4">Manage Campus Zones &amp; Categories</h2>
+<div class="row g-4">
+  {% for kind, label, rows in [('zone', 'Campus Zones', zones), ('category', 'Item Categories', categories)] %}
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header fw-bold">{{ label }}</div>
+      <ul class="list-group list-group-flush">
+        {% for r in rows %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ r.value }}
+          <form method="post" action="{{ url_for('directory.remove_config', config_id=r.id) }}"
+                onsubmit="return confirm('Remove {{ r.value }}?');">
+            <button class="btn btn-sm btn-outline-danger">Remove</button>
+          </form>
+        </li>
+        {% else %}
+        <li class="list-group-item text-muted">None yet.</li>
+        {% endfor %}
+      </ul>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('directory.add_config') }}" class="input-group">
+          <input type="hidden" name="kind" value="{{ kind }}">
+          <input type="text" name="value" class="form-control" placeholder="Add new {{ kind }}" required>
+          <button class="btn btn-primary">Add</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
