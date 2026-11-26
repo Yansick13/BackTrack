@@ -2,7 +2,7 @@
 BackTrack — Main Application Entry Point (app.py)
 Owner: Yanick Salmon
 
-Initializes Flask, SQLite database, user sessions, and registers the MVC Blueprints for Roles 2, 3, 4, and 5. Also contains the core
+Initializes Flask, SQLite database, user sessions, and registers the MVC Blueprints for other team members. Also contains the core
 """
 
 import os
