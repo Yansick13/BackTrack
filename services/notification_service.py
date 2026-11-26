@@ -1,6 +1,6 @@
 """
 BackTrack — NotificationService (services/notification_service.py)
-Owner: Role 4 (Simulated Email Alerts — Feature #3)
+Owner: Davoy Gordon
 
 1. Implement sendMatchAlert(email, message) -> saves to Notification table.
 2. Implement sendStatusAlert(email, message) -> saves to Notification table.

@@ -1,6 +1,6 @@
 """
 BackTrack — MatchingService (services/matching_service.py)
-Owner: Role 4 (Smart Matching Engine — Feature #3)
+Owner: Davoy Gordon
 
 1. Implement calculateScore(lost, found) -> float (0.0 to 1.0):
    - Same category: +0.40

@@ -1,16 +1,15 @@
 """
 BackTrack — Database Models (models.py)
-Owner: Role 1 (Tech Lead)
+Owner: Yanick Salmon
 
-Maps 1-to-1 to Section 3.2 of the BackTrack Software Design Specification (SDS):
 - User
 - LostReport
 - FoundItem
 - ClaimEnquiry
 - AuditLog
 Plus helper tables:
-- Notification (for Simulated Email Inbox)
-- SystemConfig (for editable UWI Mona campus zones & item categories)
+- Notification (Simulated Email Inbox)
+- SystemConfig (editable UWI Mona campus zones & item categories)
 """
 
 from datetime import datetime, timezone

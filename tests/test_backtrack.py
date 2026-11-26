@@ -1,6 +1,6 @@
 """
 BackTrack — Automated Pytest Suite (tests/test_backtrack.py)
-Owner: Role 6 (QA, Test Plan, VLE Docs & Demo Lead)
+Owner: Marissa Henry
 
 Covers core functional & security requirements from the SRS/SDS:
 1. User Authentication & Role-Based Access Control (RBAC)
